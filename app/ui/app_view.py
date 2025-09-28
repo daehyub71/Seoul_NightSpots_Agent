@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Dict, Any, List, Tuple, Optional
 
 import streamlit as st
-import matplotlib.pyplot as plt
 
 # --- 앱 루트 경로 등록 (app/ui → app/* import) ---
 APP_DIR = Path(__file__).resolve().parents[1]
@@ -72,25 +71,6 @@ def render_cards(results: List[Dict[str, Any]]) -> None:
             st.markdown(f"[🔗 홈페이지]({r['URL']})")
         st.divider()
 
-
-def render_scatter_and_ascii(results: List[Dict[str, Any]], lat: float, lon: float) -> None:
-    """산점도 + ASCII 격자 미니맵"""
-    st.subheader("🗺️ 간이 산점도")
-    norm = normalize_points_for_scatter(results, center=(lat, lon))
-    fig = plt.figure(figsize=(5, 5))
-    ax = plt.gca()
-    ax.scatter(norm["xs"], norm["ys"], s=60)                      # 추천 포인트
-    ax.scatter([norm["center_x"]], [norm["center_y"]], s=100, marker="*", label="기준점")  # 기준점
-    for x, y, t in list(zip(norm["xs"], norm["ys"], norm["titles"]))[:5]:
-        ax.text(x + 0.01, y + 0.01, t, fontsize=9)
-    ax.set_xlim(-0.05, 1.05); ax.set_ylim(-0.05, 1.05)
-    ax.set_xlabel("경도(상대)"); ax.set_ylabel("위도(상대)")
-    ax.grid(True, alpha=0.3); ax.legend(loc="lower right")
-    st.pyplot(fig, clear_figure=True)
-
-    st.subheader("🧭 ASCII 격자 미니맵")
-    ascii_map = make_ascii_minimap(results, center=(lat, lon), grid=21)
-    st.code(ascii_map, language="text")
 
 
 # =========================
