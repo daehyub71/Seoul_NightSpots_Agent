@@ -7,27 +7,49 @@ from typing import Dict, Any, List, Tuple, Optional
 
 import streamlit as st
 
-# --- 앱 루트 경로 등록 (app/ui → app/* import) ---
-APP_DIR = Path(__file__).resolve().parents[1]
-if str(APP_DIR) not in sys.path:
-    sys.path.append(str(APP_DIR))
+# ============================================================
+# 🔧 경로 우선순위 보정
+# - 로컬 app 패키지를 sys.path "맨 앞"에 넣어 외부 packages/services* 모듈보다 우선
+# - 필요 시 프로젝트 루트도 앞쪽에 넣고 app.services.* / app.agents.*로 재시도
+# ============================================================
+APP_DIR = Path(__file__).resolve().parents[1]   # .../app
+PROJECT_ROOT = APP_DIR.parent                   # .../
 
-# --- 내부 모듈 임포트 ---
+# 최우선 순위로 삽입
+sys.path.insert(0, str(APP_DIR))
+sys.path.insert(0, str(PROJECT_ROOT))
+
+# ---------------------------
+# 내부 모듈 임포트(방어적)
+# ---------------------------
 from utils.logger import get_logger
 from utils.config import settings
-from services.datastore import load_from_json
-from services.geo import nearest, validate_coords, get_preset_coord, PRESET_COORDS
-from services.vis import make_ascii_minimap, normalize_points_for_scatter
-from services.rag import build_index as rag_build_index, search as rag_search
-from services.map_renderer import render_leaflet_map  # ✅ Leaflet 전용
 
-# LangGraph 경로 (Agent O → C → E → D)
-from agents.graph import run_o_to_d, get_graph_dot, get_graph_mermaid
+# services.*
+try:
+    from services.datastore import load_from_json
+    from services.geo import nearest, validate_coords, get_preset_coord, PRESET_COORDS
+    from services.vis import make_ascii_minimap, normalize_points_for_scatter
+    from services.rag import build_index as rag_build_index, search as rag_search
+    from services.map_renderer import render_leaflet_map  # ✅ Leaflet 전용
+except Exception:
+    # fallback: app.services.*
+    from app.services.datastore import load_from_json
+    from app.services.geo import nearest, validate_coords, get_preset_coord, PRESET_COORDS
+    from app.services.vis import make_ascii_minimap, normalize_points_for_scatter
+    from app.services.rag import build_index as rag_build_index, search as rag_search
+    from app.services.map_renderer import render_leaflet_map
+
+# agents.*
+try:
+    from agents.graph import run_o_to_d, get_graph_dot, get_graph_mermaid
+except Exception:
+    from app.agents.graph import run_o_to_d, get_graph_dot, get_graph_mermaid
 
 log = get_logger("ui.app_view")
 
 # 프로젝트 루트 기준 데이터 경로(절대경로 고정: 경로 불일치 방지)
-DATA_PATH = APP_DIR.parent / "data" / "nightspots.json"
+DATA_PATH = PROJECT_ROOT / "data" / "nightspots.json"
 
 # (기존) 프리셋 좌표 (수동 추천 탭에서 사용)
 PRESETS: Dict[str, Tuple[Optional[float], Optional[float]]] = {
@@ -70,7 +92,6 @@ def render_cards(results: List[Dict[str, Any]]) -> None:
         if r.get("URL"):
             st.markdown(f"[🔗 홈페이지]({r['URL']})")
         st.divider()
-
 
 
 # =========================
@@ -348,6 +369,7 @@ with tab1:
             st.components.v1.html(map_html, height=500)
 
             # 3) 산점도 + ASCII 대안 시각화(원하면 해제)
+            # from matplotlib import pyplot as plt
             # render_scatter_and_ascii(results, lat=lat, lon=lon)
 
 # ------------------------------------
