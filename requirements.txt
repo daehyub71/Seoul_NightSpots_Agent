@@ -1,0 +1,9 @@
+streamlit
+requests
+python-dotenv
+langchain
+langgraph
+
+# Optional
+# faiss-cpu
+# scikit-learn

@@ -1,0 +1,75 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+.venv-rag/
+
+# --- Editors/IDE ---
+.vscode/
+.idea/
+*.code-workspace
+
+# --- OS cruft ---
+.DS_Store
+Thumbs.db
+
+# --- Testing / Type checking / Coverage ---
+.pytest_cache/
+.tox/
+.mypy_cache/
+.pyrightcache/
+.coverage
+htmlcov/
+
+# --- Build/Dist ---
+build/
+dist/
+site/
+*.spec
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+
+# --- Streamlit ---
+.streamlit/credentials.toml
+.streamlit/secrets.toml
+
+# --- Secrets & local env ---
+.env
+*.env
+!.env.example
+.envrc
+.direnv/
+
+# --- Logs & local DB ---
+logs/
+*.log
+*.db
+*.sqlite
+*.sqlite3
+history.db
+
+# --- Project data (cache/raw/output) ---
+#data/nightspots.json
+data/raw/
+data/tmp/
+data/cache/
+app/data/raw/
+app/data/tmp/
+app/data/cache/
+
+# (keep directory placeholders)
+!data/.gitkeep
+!app/data/.gitkeep
+
+# --- Misc local files ---
+*.local
