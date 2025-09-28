@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional
 from utils.logger import get_logger
 from services.geo import nearest
 from utils.config import settings
-from services.geo import validate_coords, get_preset_coord
+
 # 지도 렌더러 (Leaflet 기본)
 from services.map_renderer import render_leaflet_map
 try:
@@ -13,6 +13,18 @@ try:
     from services.map_renderer import render_map as render_kakao_map  # type: ignore
 except Exception:  # noqa: E722
     render_kakao_map = None  # 카카오 미존재 시 안전 폴백
+
+# [Agent O] origin_resolver_node 임포트 보강
+try:
+    # 패키지 상대 임포트 (권장)
+    from ..services.geo import validate_coords, get_preset_coord
+except Exception:
+    try:
+        # 절대 경로 (app 패키지 기준)
+        from app.services.geo import validate_coords, get_preset_coord
+    except Exception:
+        # 로컬 실행에서 sys.path 를 만질 때의 최후 폴백
+        from services.geo import validate_coords, get_preset_coord
 
 log = get_logger("agents.nodes")
 
